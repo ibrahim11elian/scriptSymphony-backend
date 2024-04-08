@@ -16,22 +16,6 @@ Script Symphony is a coding blog site designed for managing and publishing blog 
 ## Folder Structure
 
 ```
-├───build
-│   ├───cache
-│   ├───middleware
-│   ├───models
-│   ├───routes
-│   │   └───controllers
-│   └───utilities
-├───coverage
-│   └───lcov-report
-│       └───src
-│           ├───cache
-│           ├───middleware
-│           ├───models
-│           ├───routes
-│           │   └───controllers
-│           └───utilities
 ├───migrations
 │   └───sqls
 ├───src
