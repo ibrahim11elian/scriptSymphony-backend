@@ -1,8 +1,11 @@
 import { createAdmin } from "../create-admin";
 import User from "../../models/User";
+import bcrypt from "bcrypt";
 
 // Mocking User model methods
 jest.mock("../../models/User");
+// Mock bcrypt
+jest.mock("bcrypt");
 // Mock console.error
 const consoleErrorMock = jest.spyOn(console, "error").mockImplementation();
 
@@ -14,6 +17,8 @@ describe("createAdmin utility function", () => {
   it("should create admin user if it doesn't exist", async () => {
     // Mocking getUserByUserName to return null (user doesn't exist)
     (User.prototype.getUserByUserName as jest.Mock).mockResolvedValueOnce(null);
+
+    (bcrypt.hashSync as jest.Mock).mockReturnValueOnce("password_hashed");
 
     // Mocking createUser method
     (User.prototype.createUser as jest.Mock).mockResolvedValueOnce(undefined);
@@ -28,7 +33,7 @@ describe("createAdmin utility function", () => {
     // Expect createUser to be called with admin user details
     expect(User.prototype.createUser).toHaveBeenCalledWith({
       user_name: process.env.ADMIN_NAME,
-      hashed_password: process.env.ADMIN_PASSWORD,
+      hashed_password: "password_hashed",
     });
   });
 
@@ -69,6 +74,8 @@ describe("createAdmin utility function", () => {
     // Mocking getUserByUserName to return null (user doesn't exist)
     (User.prototype.getUserByUserName as jest.Mock).mockResolvedValueOnce(null);
 
+    (bcrypt.hashSync as jest.Mock).mockReturnValueOnce("password_hashed");
+
     // Mocking createUser method to throw an error
     (User.prototype.createUser as jest.Mock).mockRejectedValueOnce(
       new Error(errorMessage)
@@ -84,7 +91,7 @@ describe("createAdmin utility function", () => {
     // Expect createUser to be called with admin user details
     expect(User.prototype.createUser as jest.Mock).toHaveBeenCalledWith({
       user_name: process.env.ADMIN_NAME,
-      hashed_password: process.env.ADMIN_PASSWORD,
+      hashed_password: "password_hashed",
     });
 
     // Expect an error message to be logged
