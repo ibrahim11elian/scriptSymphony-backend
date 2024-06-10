@@ -4,13 +4,20 @@
   "description": "backend for my blog.",
   "main": "app.js",
   "scripts": {
-    "build": "npx tsc",
+    "start": "nodemon src/index.ts",
+    "build": "rimraf build && tsc",
     "vercel-build": "npm run build",
+    "ts.check": "tsc --project tsconfig.json",
+    "add-build": "git add build",
     "test": "set NODE_ENV=test && npx db-migrate up --env test && jest --coverage && npm run reset",
     "reset": "npx db-migrate --env test reset",
-    "start": "node ./build/app.js",
     "migrate": "npx db-migrate --env dev up && npx db-migrate up"
   },
+  "pre-commit": [
+    "ts.check",
+    "build",
+    "add-build"
+  ],
   "keywords": [
     "Blog",
     "Script",
