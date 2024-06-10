@@ -4,7 +4,7 @@
   "description": "backend for my blog.",
   "main": "app.js",
   "scripts": {
-    "start": "nodemon src/index.ts",
+    "start": "nodemon build/app.js",
     "build": "rimraf build && tsc",
     "ts.check": "tsc --project tsconfig.json",
     "add-build": "git add build",
