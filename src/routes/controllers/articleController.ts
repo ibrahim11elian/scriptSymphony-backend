@@ -64,7 +64,7 @@ export const getArticles = async (
     const recentArticles = await cacheManager.getRecentArticles();
 
     // Extract IDs of recent articles
-    const excludeIds = recentArticles.map((article: Article) => article.id);
+    const excludeIds = recentArticles?.map((article: Article) => article.id);
 
     // Fetch articles for "All Articles" section, excluding recent articles
     const [articles, totalItems] = await articleModel.getArticles(

@@ -66,7 +66,7 @@ const getArticles = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         // Fetch recent articles from cache or database
         const recentArticles = yield cacheManager.getRecentArticles();
         // Extract IDs of recent articles
-        const excludeIds = recentArticles.map((article) => article.id);
+        const excludeIds = recentArticles === null || recentArticles === void 0 ? void 0 : recentArticles.map((article) => article.id);
         // Fetch articles for "All Articles" section, excluding recent articles
         const [articles, totalItems] = yield articleModel.getArticles(excludeIds, itemsPerPage, offset);
         // Map articles with tags using Promise.all

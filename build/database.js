@@ -12,6 +12,7 @@ const { PG_HOST, PG_USER, PG_DATABASE, PG_PASSWORD, PG_PORT, PG_TEST_DATABASE, N
 // database connection
 exports.db = new pg_1.Pool({
     host: PG_HOST,
+    ssl: true,
     user: PG_USER,
     database: NODE_ENV === "DEV" ? PG_DATABASE : PG_TEST_DATABASE,
     password: PG_PASSWORD,

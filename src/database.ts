@@ -17,6 +17,7 @@ const {
 // database connection
 export const db = new Pool({
   host: PG_HOST,
+  ssl: true,
   user: PG_USER,
   database: NODE_ENV === "DEV" ? PG_DATABASE : PG_TEST_DATABASE,
   password: PG_PASSWORD,
