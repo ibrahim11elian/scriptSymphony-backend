@@ -7,7 +7,7 @@
     "build": "npx tsc",
     "test": "set NODE_ENV=test && npx db-migrate up --env test && jest --coverage && npm run reset",
     "reset": "npx db-migrate --env test reset",
-    "start": "nodemon ./build/app.js",
+    "start": "node ./build/app.js",
     "migrate": "npx db-migrate --env dev up && npx db-migrate up"
   },
   "keywords": [
