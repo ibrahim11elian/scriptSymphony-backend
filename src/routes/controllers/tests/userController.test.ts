@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import jwt, { Secret } from "jsonwebtoken";
 import * as userController from "../../controllers/userController";
 import User from "../../../models/User";
-import { app } from "../../../app";
+import app from "../../../app";
 
 jest.mock("../../../models/User");
 jest.mock("bcrypt");
