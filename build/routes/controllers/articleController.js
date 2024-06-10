@@ -175,8 +175,9 @@ const deleteArticle = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             res.status(404).json({ massage: "the article does not exist" });
             return;
         }
+        const publicId = (_a = isExist.cover) === null || _a === void 0 ? void 0 : _a.split(" ")[0];
         // delete the image on cloudinary by public ID
-        yield cloudinary_1.v2.uploader.destroy((_a = isExist.cover) === null || _a === void 0 ? void 0 : _a.split(" ")[0]);
+        yield cloudinary_1.v2.uploader.destroy(publicId);
         yield articleModel.deleteArticle(id);
         // Refresh the articles list in cache to update it with the newly created one
         cacheManager.refreshCache();

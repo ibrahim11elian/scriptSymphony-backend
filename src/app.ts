@@ -24,7 +24,7 @@ app.use(cors());
 const PORT = process.env.PORT || 3000;
 
 // creating the files folders to store the uploaded files
-folderBuilder();
+// folderBuilder(); // we use multer memory storage now cause vercel only serve static files
 
 // create Admin user if there is no one in database yet
 createAdmin();
@@ -35,14 +35,7 @@ app.use(express.json());
 app.use("/api", router);
 
 // Configure Multer
-export const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/"); // Directory where uploaded files will be stored
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname); // Use the original filename for the uploaded file
-  },
-});
+export const storage = multer.memoryStorage();
 
 // Create a Multer instance with the above configuration
 export const upload = multer({

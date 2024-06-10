@@ -200,8 +200,10 @@ export const deleteArticle = async (
       res.status(404).json({ massage: "the article does not exist" });
       return;
     }
+
+    const publicId = (isExist.cover as string)?.split(" ")[0] as string;
     // delete the image on cloudinary by public ID
-    await cloudinary.uploader.destroy(isExist.cover?.split(" ")[0] as string);
+    await cloudinary.uploader.destroy(publicId);
 
     await articleModel.deleteArticle(id);
 

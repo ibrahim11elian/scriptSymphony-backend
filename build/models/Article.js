@@ -8,13 +8,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const database_1 = require("../database");
 const cloudinary_1 = require("cloudinary");
-const fs_1 = __importDefault(require("fs"));
 class ArticleModel {
     createArticle(article) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -142,42 +138,65 @@ class ArticleModel {
     updateArticle(id, article) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                // begin a  transaction to ensure data integrity
+                // Begin a transaction to ensure data integrity
                 yield database_1.db.query("BEGIN");
                 const { title, author, description, content, cover } = article;
                 const updateArticleQuery = `
-                UPDATE articles
-                SET title = $1,
-                    author = $2,
-                    description = $3,
-                    content = $4
-                WHERE id = $5 RETURNING *
-            `;
-                const oldPublic_id = yield database_1.db.query(updateArticleQuery, [
+            UPDATE articles
+            SET title = $1,
+                author = $2,
+                description = $3,
+                content = $4
+            WHERE id = $5
+            RETURNING *
+        `;
+                const oldArticle = yield database_1.db.query(updateArticleQuery, [
                     title,
                     author,
                     description,
                     content,
                     id,
                 ]);
-                // If the article update is successful, update the cover image in Cloudinary
+                // If the article update is successful and there's a new cover image
                 if (cover) {
-                    const result = yield cloudinary_1.v2.uploader.upload(cover, {
-                        public_id: oldPublic_id.rows[0].cover.split(" ")[0],
+                    let publicId;
+                    if (typeof oldArticle.rows[0].cover === "string") {
+                        // If 'cover' is a string, use it directly
+                        publicId = oldArticle.rows[0].cover.split(" ")[0];
+                    }
+                    // Create a Promise to handle the Cloudinary upload operation
+                    const uploadToCloudinary = new Promise((resolve, reject) => {
+                        const uploadStream = cloudinary_1.v2.uploader.upload_stream({
+                            public_id: publicId,
+                        }, (error, result) => {
+                            if (error) {
+                                reject(new Error("Error uploading file to Cloudinary: " + error.message));
+                            }
+                            else {
+                                // If the Cloudinary upload is successful, update the reference to the cover image in the database
+                                const newPublicId = `${result === null || result === void 0 ? void 0 : result.public_id} ${result === null || result === void 0 ? void 0 : result.version}`;
+                                const updateCoverQuery = `
+                                UPDATE articles
+                                SET cover = $1
+                                WHERE id = $2
+                            `;
+                                database_1.db.query(updateCoverQuery, [newPublicId, id])
+                                    .then(() => resolve())
+                                    .catch((dbError) => reject(new Error("Error updating cover in the database: " +
+                                    dbError.message)));
+                            }
+                        });
+                        uploadStream.write(cover);
+                        uploadStream.end();
                     });
-                    // If the Cloudinary upload is successful, update the reference to the cover image in the database
-                    const updateCoverQuery = `UPDATE articles
-                                  SET cover = $1
-                                  WHERE id = $2`;
-                    const newPublicId = `${result.public_id} ${result.version}`;
-                    yield database_1.db.query(updateCoverQuery, [newPublicId, id]);
-                    // Remove the uploaded file from the server
-                    fs_1.default.unlinkSync(cover);
+                    // Wait for the Cloudinary upload operation to complete
+                    yield uploadToCloudinary;
                 }
+                // Commit the transaction
                 yield database_1.db.query("COMMIT");
-                return;
             }
             catch (error) {
+                // Rollback the transaction in case of an error
                 yield database_1.db.query("ROLLBACK");
                 throw new Error(`Error updating article: ${error.message}`);
             }
