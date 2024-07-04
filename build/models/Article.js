@@ -42,7 +42,7 @@ class ArticleModel {
                     FROM articles ra 
 	                  ORDER BY ra.date DESC
 	                  LIMIT 5
-                )
+                ) AS recent_articles
                 ORDER BY views DESC
                 LIMIT 1;
             `;
