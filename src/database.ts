@@ -17,7 +17,9 @@ const {
 // database connection
 export const db = new Pool({
   host: PG_HOST,
-  ssl: true,
+  ssl: {
+    rejectUnauthorized: false, // This is important for Supabase
+  },
   user: PG_USER,
   database: NODE_ENV === "DEV" ? PG_DATABASE : PG_TEST_DATABASE,
   password: PG_PASSWORD,
@@ -25,3 +27,11 @@ export const db = new Pool({
 });
 
 db.on("error", (err) => console.error(`database connection failed: ${err}`));
+
+db.connect((err, client, release) => {
+  if (err) {
+    return console.error("Error acquiring client", err.stack);
+  }
+  console.log("Database connected successfully");
+  release();
+});

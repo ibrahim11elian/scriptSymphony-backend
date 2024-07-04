@@ -12,10 +12,19 @@ const { PG_HOST, PG_USER, PG_DATABASE, PG_PASSWORD, PG_PORT, PG_TEST_DATABASE, N
 // database connection
 exports.db = new pg_1.Pool({
     host: PG_HOST,
-    ssl: true,
+    ssl: {
+        rejectUnauthorized: false, // This is important for Supabase
+    },
     user: PG_USER,
     database: NODE_ENV === "DEV" ? PG_DATABASE : PG_TEST_DATABASE,
     password: PG_PASSWORD,
     port: Number(PG_PORT),
 });
 exports.db.on("error", (err) => console.error(`database connection failed: ${err}`));
+exports.db.connect((err, client, release) => {
+    if (err) {
+        return console.error("Error acquiring client", err.stack);
+    }
+    console.log("Database connected successfully");
+    release();
+});
